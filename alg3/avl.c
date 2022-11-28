@@ -33,3 +33,14 @@ void printTree (nodo_t *n){
     printf("%d", n->chave);
     printTree(n->dir);
 }
+
+void transplant(t, nodo_t *u, nodo_t* v){
+    if(u.pai == NULL)
+        t->raiz = v;
+    else if (u == u->p->esq)
+        u->p->esq = v;
+    else
+        u->p->dir = v;
+    if (v != NULL)
+        v->p = u->p;
+}
