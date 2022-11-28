@@ -35,4 +35,6 @@ void treeDelete (arvore_t* t, nodo* n);
 
 void transplant(arvore_t* t, nodo_t* u, nodo_t* v);
 
+int altura (nodo_t *p);
+
 #endif
