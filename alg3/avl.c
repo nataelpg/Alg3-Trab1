@@ -1,7 +1,7 @@
 #include "libavl.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+//aaaaa
 nodo_t* cria_nodo(){
     nodo_t *n = malloc(sizeof(nodo_t));
     if (!n)
