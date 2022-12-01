@@ -1,12 +1,13 @@
 #include "avl.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
-nodo_t* cria_nodo(int chave){
+nodo_t* cria_nodo(int valor){
     nodo_t *n = malloc(sizeof(nodo_t));
     if (!n)
         return NULL;
-    n->chave = chave;
+    n->chave = valor;
     n->esq = NULL;
     n->dir = NULL;
 /*     n->irmao = NULL; */
@@ -66,9 +67,9 @@ nodo_t *binario(arvore_t *t,nodo_t *n, int chave){
         n->esq = binario(t, n->esq, chave);
     }
     if(n->chave < chave){
-        n->dir = binario (t, n->dir, chave);  
+        n->dir = binario(t, n->dir, chave);  
     }
-
+    
     n->altura = 1 + max(altura(n->esq), altura(n->dir));
 
     int fb = fatorBalanceamento(n);
@@ -123,15 +124,12 @@ int he, hd;
 int fatorBalanceamento(nodo_t *n){
     if (n == NULL)
         return 0;
-    return altura(n->esq) - altura(n->dir);
+    return (altura(n->esq) - altura(n->dir));
 }
 
-void insere(arvore_t* t, nodo_t* n, int chave){
-    if (t->raiz == NULL){
-        t->raiz = cria_nodo(chave);
-
-        return;
-    }
+void insere(nodo_t* n, int chave){
+    if (!n)
+        return cria_nodo(chave);
     if ((n->esq == NULL) && (n->dir == NULL))
         if (n->chave < n->chave){//se menor
             /* insere na esq */
@@ -143,9 +141,18 @@ void insere(arvore_t* t, nodo_t* n, int chave){
         }
     else
         if (n < chave)
-            return insere(t, n->esq, chave);
+            return insere(n->esq, chave);
         else
-            return insere(t, n->dir, chave);
+            return insere(n->dir, chave);
 
     return;
+}
+
+void remove(nodo_t* raiz, int chave){
+    if(raiz == NULL)
+        return raiz;
+
+    if(chave < raiz->chave)
+        raiz->esq = remove(raiz->esq)
+
 }
