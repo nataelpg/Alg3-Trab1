@@ -63,10 +63,10 @@ nodo_t *binario(arvore_t *t,nodo_t *n, int chave){
     if(n == NULL)
         return cria_nodo(chave);
     if(n->chave > chave){ 
-        return binario(t, n->esq, chave);
+        n->esq = binario(t, n->esq, chave);
     }
     if(n->chave < chave){
-        return binario (t, n->dir, chave);  
+        n->dir = binario (t, n->dir, chave);  
     }
 
     n->altura = 1 + max(altura(n->esq), altura(n->dir));
