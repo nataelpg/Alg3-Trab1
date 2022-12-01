@@ -1,8 +1,8 @@
-#include "libavl.h"
+#include "avl.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-nodo_t* cria_nodo(){
+nodo_t* cria_nodo(int chave){
     nodo_t *n = malloc(sizeof(nodo_t));
     if (!n)
         return NULL;
@@ -15,16 +15,6 @@ nodo_t* cria_nodo(){
     return n;
 }
 
-nodo_t *binario(nodo_t *n, int chave){
-    if(n == NULL)
-        return cria_nodo(chave);
-    if(n->chave > chave)
-        return binario(n->esq, chave);
-    if(n->chave < chave)
-        return binario (n->dir, chave);
-    
-    return n;
-}
 
 void printTree (nodo_t *n){
     if (n == NULL)
@@ -34,7 +24,7 @@ void printTree (nodo_t *n){
     printTree(n->dir);
 }
 
-void rotEsq(arvore_t *t, nodo_t *x){
+nodo_t* rotEsq(arvore_t *t, nodo_t *x){
     nodo_t *y = x->dir;
     x->dir = y->esq;
     if(y->esq != NULL)
@@ -47,10 +37,12 @@ void rotEsq(arvore_t *t, nodo_t *x){
     else 
         x->pai->dir = y;
     y->esq = x;
-    x->pai = y;       
+    x->pai = y;  
+
+    return y;     
 }
 
-void rotDir(arvore_t *t, nodo_t *x){
+nodo_t* rotDir(arvore_t *t, nodo_t *x){
     nodo_t *y = x->esq;
     x->esq = y->dir;
     if(y->dir != NULL)
@@ -64,6 +56,37 @@ void rotDir(arvore_t *t, nodo_t *x){
         x->pai->esq = y;
     y->dir = x;
     x->pai = y;       
+
+    return y;
+}
+nodo_t *binario(arvore_t *t,nodo_t *n, int chave){
+    if(n == NULL)
+        return cria_nodo(chave);
+    if(n->chave > chave){ 
+        return binario(t, n->esq, chave);
+    }
+    if(n->chave < chave){
+        return binario (t, n->dir, chave);  
+    }
+
+    n->altura = 1 + max(altura(n->esq), altura(n->dir));
+
+    int fb = fatorBalanceamento(n);
+
+    if(fb > 1 && chave < n->esq->chave)
+        return rotDir(t, n);
+    if(fb < -1 && chave > n->dir->chave)
+        return rotEsq(t, n);
+    if(fb > 1 && chave > n->esq->chave){
+        n->esq = rotEsq(t, n->esq);
+        return rotDir(t, n);
+    }
+    if(fb < -1 && chave < n->dir->chave){
+        n->dir = rotDir(t, n->dir);
+        return rotEsq(t, n);
+    }
+    
+    return n;
 }
 
 void treeDelete(arvore_t *t, nodo_t *z){
@@ -94,5 +117,35 @@ int he, hd;
     if (he > hd)
         return he+1;
     else
-        return hd+1;
+        return hd+1;    
+}
+
+int fatorBalanceamento(nodo_t *n){
+    if (n == NULL)
+        return 0;
+    return altura(n->esq) - altura(n->dir);
+}
+
+void insere(arvore_t* t, nodo_t* n, int chave){
+    if (t->raiz == NULL){
+        t->raiz = cria_nodo(chave);
+
+        return;
+    }
+    if ((n->esq == NULL) && (n->dir == NULL))
+        if (n->chave < n->chave){//se menor
+            /* insere na esq */
+            n->esq = cria_nodo(chave);
+        }
+        else{                   //se maior
+            /* insere na dir */
+            n->dir = cria_nodo(chave);
+        }
+    else
+        if (n < chave)
+            return insere(t, n->esq, chave);
+        else
+            return insere(t, n->dir, chave);
+
+    return;
 }
