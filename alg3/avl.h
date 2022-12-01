@@ -19,20 +19,22 @@ typedef struct arvore arvore_t;
 
 nodo_t *cria_nodo ();
 
-nodo_t *binario(nodo_t *n, int chave);
+nodo_t *binario(arvore_t* t, nodo_t *n, int chave);
 
 void printTree(nodo_t *n);
 
-void rotEsq(arvore_t* t, nodo_t* n);
+nodo_t *rotEsq(arvore_t* t, nodo_t* n);
 
-void rotDir(arvore_t* t, nodo_t* n);
+nodo_t *rotDir(arvore_t* t, nodo_t* n);
 
 nodo_t* find_min(nodo_t* n);
 
 nodo_t* find_max(nodo_t* n);
 
-void treeDelete (arvore_t* t, nodo* n);
+void treeDelete (arvore_t* t, nodo_t* n);
 
 void transplant(arvore_t* t, nodo_t* u, nodo_t* v);
+
+int altura (nodo_t *p);
 
 #endif
