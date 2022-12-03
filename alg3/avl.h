@@ -1,6 +1,7 @@
 #ifndef _LIBavl_t_H
 #define _LIBavl_t_H
 
+
 struct nodo {
     int chave;       /* lista de numeros inteiros */
     int altura;
@@ -17,9 +18,17 @@ struct arvore {
 };
 typedef struct arvore arvore_t;
 
+nodo_t *tree_minimum(nodo_t *n);
+
+nodo_t *tree_maximum(nodo_t *n);
+
+arvore_t* cria_arvore();
+
 nodo_t *cria_nodo ();
 
-nodo_t *binario(arvore_t* t, nodo_t *n, int chave);
+nodo_t *insere(arvore_t *t,nodo_t *n, int chave);
+
+nodo_t* removeNo(arvore_t* arvore, nodo_t* nodo, int chave);
 
 void printTree(nodo_t *n);
 

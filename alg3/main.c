@@ -3,7 +3,8 @@
 #include "avl.h"
 
 int main(int argc, char** argv){
-    nodo_t* raiz = NULL;
+    arvore_t* arvore = cria_arvore();
+    nodo_t* nodo = NULL;
     int valor;
     char c;
     scanf("%c", &c); 
@@ -11,11 +12,14 @@ int main(int argc, char** argv){
     {
         if (c == 'i'){
             scanf("%d", &valor);
-            raiz = insere(raiz, valor);
+            nodo = cria_nodo(valor);
+            nodo = insere(arvore, nodo, valor);
+            printf ("altura esq: %d\n", arvore->raiz->esq->altura);
+            printf ("altura dir: %d\n", arvore->raiz->dir->altura);
         }
         else if (c == 'r'){
             scanf("%d", &valor);
-            raiz = remove(raiz, valor);
+            nodo = removeNo(arvore, nodo, valor);
         }
     }   
 
