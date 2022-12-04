@@ -16,6 +16,7 @@ int main(){
             scanf("%d", &valor);
             nodo = removeNo(nodo, valor);
         }
+        scanf("%c", &c);
     }   
     printTree(nodo, 0);
     destroiArvore(nodo);
