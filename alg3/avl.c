@@ -1,20 +1,33 @@
-#include "avl.h"
 #include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
-
+#include<stdlib.h>
+#include "avl.h"
 
 nodo_t* cria_nodo(int valor){
     nodo_t *n = malloc(sizeof(nodo_t));
     if (!n)
         return NULL;
     n->chave = valor;
+	n->altura = 0;
     n->esq = NULL;
     n->dir = NULL;
-    n->pai = NULL;
 
     return n;
+}
+
+void destroiArvore(nodo_t* nodo){
+	if (nodo){
+		destroiArvore(nodo->esq);
+		destroiArvore(nodo->dir);
+		free(nodo);
+	}
+}
+
+void printTree (nodo_t *nodo, int alturaArvore){
+	if(nodo != NULL){
+		printTree(nodo->esq, alturaArvore+1);
+		printf("%d,%d\n", nodo->chave, alturaArvore);
+		printTree(nodo->dir, alturaArvore+1);
+	}
 }
 
 int max(int a, int b){
@@ -23,18 +36,13 @@ int max(int a, int b){
     return b;
 }
 
-int altura (nodo_t *p) {
-    int he, hd;
-    if (p == NULL) return -1;
-        he = altura (p->esq);
-        hd = altura (p->dir);
-    if (he > hd)
-        return he+1;
-    else
-        return hd+1;    
+int altura (nodo_t *nodo) {
+	if(!nodo)
+		return -1;
+	return nodo->altura;
 }
 
-int fatorBalanceamento(nodo_t *n){
+int fator_balanceamento(nodo_t *n){
     if (n == NULL)
         return 0;
     return (altura(n->esq) - altura(n->dir));
@@ -52,108 +60,137 @@ nodo_t *tree_maximum(nodo_t *n){
     return n;
 }
 
+nodo_t* rotEsq( nodo_t *x){
+    nodo_t* y = x->dir;
+	nodo_t* A2 = y->esq;
 
+	y->esq = x;
+	x->dir = A2;
 
-void printTree (nodo_t *n){
-    if (n == NULL)
-        return;
-    printTree(n->esq);
-    printf("%d", n->chave);
-    printTree(n->dir);
+	x->altura = max(altura(x->esq), altura(x->dir)) + 1;
+	y->altura = max(altura(y->esq), altura(y->dir)) + 1;
+
+	return y;    
 }
 
-nodo_t* rotEsq(arvore_t *t, nodo_t *x){
-    nodo_t *y = x->dir;
-    x->dir = y->esq;
-    if(y->esq != NULL)
-        y->esq->pai = x;
-    y->pai = x->pai;
-    if (x->pai == NULL)
-        t->raiz = y;
-    else if (x = x->pai->esq) 
-        x->pai->esq = y;
-    else 
-        x->pai->dir = y;
-    y->esq = x;
-    x->pai = y;  
+nodo_t* rotDir( nodo_t *x){
+    nodo_t* y = x->esq;
+	nodo_t* A2 = y->dir;
 
-    return y;     
+	y->dir = x;
+	x->esq = A2;
+
+	x->altura = max(altura(x->esq), altura(x->dir)) + 1;
+	y->altura = max(altura(y->esq), altura(y->dir)) + 1;
+
+	return y;   
 }
 
-nodo_t* rotDir(arvore_t *t, nodo_t *x){
-    nodo_t *y = x->esq;
-    x->esq = y->dir;
-    if(y->dir != NULL)
-        y->dir->pai = x;
-    y->pai = x->pai;
-    if (x->pai == NULL)
-        t->raiz = y;
-    else if (x == x->pai->dir) 
-        x->pai->dir = y;
-    else 
-        x->pai->esq = y;
-    y->dir = x;
-    x->pai = y;       
+nodo_t* insereNo(nodo_t* nodo, int valor)
+{
+	// Se nodo for NULL, chegou na folha da árvore
+	if (!nodo)
+		return cria_nodo(valor);
 
-    return y;
-}
-nodo_t *insere(arvore_t *t,nodo_t *n, int chave){
-    if(n == NULL)
-        return cria_nodo(chave);
-    if(n->chave > chave){ 
-        n->esq = insere(t, n->esq, chave);
-    }
-    if(n->chave < chave){
-        n->dir = insere(t, n->dir, chave);  
-    }
-    
-    n->altura = 1 + max(altura(n->esq), altura(n->dir));
+	// Se o valor a ser inserido for menor que a chave do nodo atual,
+	// insere o valor na subárvore da esquerda
+	if (valor < nodo->chave)
+		nodo->esq = insereNo(nodo->esq, valor);
 
-    int fb = fatorBalanceamento(n);
+	// Caso contrário, insere na subárvore da direita
+	else
+		nodo->dir = insereNo(nodo->dir, valor);
+	
+	// Atualiza a altura dos nodos anteriores ao que foi inserido
+	nodo->altura = 1 + max(altura(nodo->esq), altura(nodo->dir));
 
-    if(fb > 1 && chave < n->esq->chave)
-        return rotDir(t, n);
-    if(fb < -1 && chave > n->dir->chave)
-        return rotEsq(t, n);
-    if(fb > 1 && chave > n->esq->chave){
-        n->esq = rotEsq(t, n->esq);
-        return rotDir(t, n);
-    }
-    if(fb < -1 && chave < n->dir->chave){
-        n->dir = rotDir(t, n->dir);
-        return rotEsq(t, n);
-    }
-    
-    return n;
+	// Calcula a diferença de altura entre as subárvores da esquerda e da direita
+	int fb = fator_balanceamento(nodo);
+
+	// Zig-zig na esquerda
+	if (fb > 1 && valor < nodo->esq->chave)
+		return rotDir(nodo);
+
+	// Zig-zig na direita
+	if (fb < -1 && valor > nodo->dir->chave)
+		return rotEsq(nodo);
+
+	// Zig-zag na esquerda
+	if (fb > 1 && valor > nodo->esq->chave){
+		nodo->esq = rotEsq(nodo->esq);
+		return rotDir(nodo);
+	}
+
+	// Zig-zag na direita
+	if (fb < -1 && valor < nodo->dir->chave){
+		nodo->dir = rotDir(nodo->dir);
+		return rotEsq(nodo);
+	}
+
+	return nodo;
 }
 
-nodo_t* removeNo(arvore_t* arvore, nodo_t* nodo, int chave){
-    if(nodo == NULL)
-        return nodo;
 
-    while(nodo->chave != chave && nodo != NULL){
-        if(chave < nodo->chave)
-            nodo->esq = removeNo(arvore, nodo->esq, chave);
-        
-    }
+nodo_t* removeNo(nodo_t* nodo, int valor){
+	// Nodo não está na árvore
+	if (!nodo)
+		return nodo;
 
-}
+	// Se o valor a ser removido for menor que a chave do nodo atual,
+	// procura o valor na subárvore da esquerda
+	else if (valor < nodo->chave)
+		nodo->esq = removeNo(nodo->esq, valor);
 
-void treeDelete(arvore_t *t, nodo_t *z){
-    if (z->esq == NULL)
-        transplant(t, z, z->dir);
-    else if (z->dir == NULL)
-        transplant(t, z, z->esq);
-    else{
-        nodo_t *y = tree_minimum(z->dir);
-        if(y->pai != z){
-            transplant (t, y, y->dir);
-            y->dir = z->dir;
-            y->dir->pai = y;
-        }
-        transplant(t, z, y);
-        y->esq = z->esq;
-        y->esq->pai = y;
-        
-    }
+	// Caso seja maior, procura o valor na subárvore da direita
+	else if (valor > nodo->chave)
+		nodo->dir = removeNo(nodo->dir, valor);
+
+	// Nodo foi encontrado
+	else{
+		// Caso o nodo tenha 0 ou 1 filhos
+		if (nodo->esq == NULL){
+			nodo_t* aux = nodo->dir;
+			free(nodo);
+			return aux;
+		}
+		else if (nodo->dir == NULL){
+			nodo_t* aux = nodo->esq;
+			free(nodo);
+			return aux;
+		}
+		// Caso o nodo tenha 2 filhos
+		else{
+			nodo_t* aux = tree_maximum(nodo->esq);
+			nodo->chave = aux->chave;
+			nodo->esq = removeNo(nodo->esq, aux->chave);
+		}
+	}
+
+	// Atualiza a altura dos nodos anteriores ao que foi inserido
+	nodo->altura = 1 + max(altura(nodo->esq), altura(nodo->dir));
+
+	// Calcula a diferença de altura entre as subárvores da esquerda e da direita
+	int fb = fator_balanceamento(nodo);
+
+	// Zig-zig na esquerda
+	if (fb > 1 && fator_balanceamento(nodo->esq) >= 0)
+		return rotDir(nodo);
+
+	// Zig-zig na direita
+	if (fb < -1 && fator_balanceamento(nodo->dir) >= 0)
+		return rotEsq(nodo);
+
+	// Zig-zag na esquerda
+	if (fb > 1 && fator_balanceamento(nodo->esq) < 0){
+		nodo->esq = rotEsq(nodo->esq);
+		return rotDir(nodo);
+	}
+
+	// Zig-zag na direita
+	if (fb < -1 && fator_balanceamento(nodo->dir) < 0){
+		nodo->dir = rotDir(nodo->dir);
+		return rotEsq(nodo);
+	}
+
+	return nodo;
 }

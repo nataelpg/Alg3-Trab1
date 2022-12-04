@@ -1,15 +1,19 @@
-nomePrograma=myavl
+flags = -Wall -std=c99
+nome = myavl
 
-all: $(nomePrograma)
+all: $(nome)
 
-$(nomePrograma): avl.o main.o
-	gcc -o avl.o main.o $(parametrosCompilacao)
+$(nome): main.o avl.o
+	gcc -o $(nome) main.o avl.o $(flags)
 
-.o: .c
-	gcc -c *.c $(parametrosCompilacao)
+main.o: main.c
+	gcc -c main.c $(flags)
+
+avl.o: avl.c
+	gcc -c avl.c $(flags)
 
 clean:
-	rm -f *.o *.gch $(nomePrograma)
+	rm -f *~ *.o
 
-purge: clean 
-	-rm -f myavl
+purge: clean
+	rm -f $(nome)
